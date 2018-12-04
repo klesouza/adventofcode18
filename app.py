@@ -18,7 +18,7 @@ import sys
 if __name__ == "__main__":
     day = sys.argv[1]
     def generator(p, n_iter=None):
-        for i in itertools.repeat(0, n_iter):
+        for i in (itertools.repeat(1, n_iter) if n_iter else itertools.repeat(1)):
             if type(p) == str:
                 with open(p, 'r') as f:
                     for line in f.readlines():
@@ -27,7 +27,7 @@ if __name__ == "__main__":
                 for line in p:
                     yield line
     
-    #gen = generator(f'input{day}.txt')
-    gen = generator('+3, +3, +4, -2, -4'.split(', '))
-    print(day1(gen))
+    gen = generator(f'input{day}.txt')
+    #gen = generator('+3, +3, +4, -2, -4'.split(', '))
+    print(day1_2(gen))
         # print(day1(f.readlines()))
