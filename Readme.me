@@ -1,0 +1,897 @@
+## Day 7
+You find yourself standing on a snow-covered coastline; apparently, you landed a little off course. The region is too hilly to see the North Pole from here, but you do spot some Elves that seem to be trying to unpack something that washed ashore. It's quite cold out, so you decide to risk creating a paradox by asking them for directions.
+
+"Oh, are you the search party?" Somehow, you can understand whatever Elves from the year 1018 speak; you assume it's Ancient Nordic Elvish. Could the device on your wrist also be a translator? "Those clothes don't look very warm; take this." They hand you a heavy coat.
+
+"We do need to find our way back to the North Pole, but we have higher priorities at the moment. You see, believe it or not, this box contains something that will solve all of Santa's transportation problems - at least, that's what it looks like from the pictures in the instructions." It doesn't seem like they can read whatever language it's in, but you can: "Sleigh kit. Some assembly required."
+
+"'Sleigh'? What a wonderful name! You must help us assemble this 'sleigh' at once!" They start excitedly pulling more parts out of the box.
+
+The instructions specify a series of steps and requirements about which steps must be finished before others can begin (your puzzle input). Each step is designated by a single letter. For example, suppose you have the following instructions:
+
+Step C must be finished before step A can begin.
+Step C must be finished before step F can begin.
+Step A must be finished before step B can begin.
+Step A must be finished before step D can begin.
+Step B must be finished before step E can begin.
+Step D must be finished before step E can begin.
+Step F must be finished before step E can begin.
+Visually, these requirements look like this:
+
+
+  -->A--->B--
+ /    \      \
+C      -->D----->E
+ \           /
+  ---->F-----
+Your first goal is to determine the order in which the steps should be completed. If more than one step is ready, choose the step which is first alphabetically. In this example, the steps would be completed as follows:
+
+Only C is available, and so it is done first.
+Next, both A and F are available. A is first alphabetically, so it is done next.
+Then, even though F was available earlier, steps B and D are now also available, and B is the first alphabetically of the three.
+After that, only D and F are available. E is not available because only some of its prerequisites are complete. Therefore, D is completed next.
+F is the only choice, so it is done next.
+Finally, E is completed.
+So, in this example, the correct order is CABDFE.
+
+In what order should the steps in your instructions be completed?
+--- Part Two ---
+As you're about to begin construction, four of the Elves offer to help. "The sun will set soon; it'll go faster if we work together." Now, you need to account for multiple people working on steps simultaneously. If multiple steps are available, workers should still begin them in alphabetical order.
+
+Each step takes 60 seconds plus an amount corresponding to its letter: A=1, B=2, C=3, and so on. So, step A takes 60+1=61 seconds, while step Z takes 60+26=86 seconds. No time is required between steps.
+
+To simplify things for the example, however, suppose you only have help from one Elf (a total of two workers) and that each step takes 60 fewer seconds (so that step A takes 1 second and step Z takes 26 seconds). Then, using the same instructions as above, this is how each second would be spent:
+
+Second   Worker 1   Worker 2   Done
+   0        C          .        
+   1        C          .        
+   2        C          .        
+   3        A          F       C
+   4        B          F       CA
+   5        B          F       CA
+   6        D          F       CAB
+   7        D          F       CAB
+   8        D          F       CAB
+   9        D          .       CABF
+  10        E          .       CABFD
+  11        E          .       CABFD
+  12        E          .       CABFD
+  13        E          .       CABFD
+  14        E          .       CABFD
+  15        .          .       CABFDE
+Each row represents one second of time. The Second column identifies how many seconds have passed as of the beginning of that second. Each worker column shows the step that worker is currently doing (or . if they are idle). The Done column shows completed steps.
+
+Note that the order of the steps has changed; this is because steps now take time to finish and multiple workers can begin multiple steps simultaneously.
+
+In this example, it would take 15 seconds for two workers to complete these steps.
+
+With 5 workers and the 60+ second step durations described above, how long will it take to complete all of the steps?
+
+## Day 8
+The sleigh is much easier to pull than you'd expect for something its weight. Unfortunately, neither you nor the Elves know which way the North Pole is from here.
+
+You check your wrist device for anything that might help. It seems to have some kind of navigation system! Activating the navigation system produces more bad news: "Failed to start navigation system. Could not read software license file."
+
+The navigation system's license file consists of a list of numbers (your puzzle input). The numbers define a data structure which, when processed, produces some kind of tree that can be used to calculate the license number.
+
+The tree is made up of nodes; a single, outermost node forms the tree's root, and it contains all other nodes in the tree (or contains nodes that contain nodes, and so on).
+
+Specifically, a node consists of:
+
+A header, which is always exactly two numbers:
+The quantity of child nodes.
+The quantity of metadata entries.
+Zero or more child nodes (as specified in the header).
+One or more metadata entries (as specified in the header).
+Each child node is itself a node that has its own header, child nodes, and metadata. For example:
+
+2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2
+A----------------------------------
+    B----------- C-----------
+                     D-----
+In this example, each node of the tree is also marked with an underline starting with a letter for easier identification. In it, there are four nodes:
+
+A, which has 2 child nodes (B, C) and 3 metadata entries (1, 1, 2).
+B, which has 0 child nodes and 3 metadata entries (10, 11, 12).
+C, which has 1 child node (D) and 1 metadata entry (2).
+D, which has 0 child nodes and 1 metadata entry (99).
+The first check done on the license file is to simply add up all of the metadata entries. In this example, that sum is 1+1+2+10+11+12+2+99=138.
+
+What is the sum of all metadata entries?
+--- Part Two ---
+The second check is slightly more complicated: you need to find the value of the root node (A in the example above).
+
+The value of a node depends on whether it has child nodes.
+
+If a node has no child nodes, its value is the sum of its metadata entries. So, the value of node B is 10+11+12=33, and the value of node D is 99.
+
+However, if a node does have child nodes, the metadata entries become indexes which refer to those child nodes. A metadata entry of 1 refers to the first child node, 2 to the second, 3 to the third, and so on. The value of this node is the sum of the values of the child nodes referenced by the metadata entries. If a referenced child node does not exist, that reference is skipped. A child node can be referenced multiple time and counts each time it is referenced. A metadata entry of 0 does not refer to any child node.
+
+For example, again using the above nodes:
+
+Node C has one metadata entry, 2. Because node C has only one child node, 2 references a child node which does not exist, and so the value of node C is 0.
+Node A has three metadata entries: 1, 1, and 2. The 1 references node A's first child node, B, and the 2 references node A's second child node, C. Because node B has a value of 33 and node C has a value of 0, the value of node A is 33+33+0=66.
+So, in this example, the value of the root node is 66.
+
+What is the value of the root node?
+
+## Day 9
+You talk to the Elves while you wait for your navigation system to initialize. To pass the time, they introduce you to their favorite marble game.
+
+The Elves play this game by taking turns arranging the marbles in a circle according to very particular rules. The marbles are numbered starting with 0 and increasing by 1 until every marble has a number.
+
+First, the marble numbered 0 is placed in the circle. At this point, while it contains only a single marble, it is still a circle: the marble is both clockwise from itself and counter-clockwise from itself. This marble is designated the current marble.
+
+Then, each Elf takes a turn placing the lowest-numbered remaining marble into the circle between the marbles that are 1 and 2 marbles clockwise of the current marble. (When the circle is large enough, this means that there is one marble between the marble that was just placed and the current marble.) The marble that was just placed then becomes the current marble.
+
+However, if the marble that is about to be placed has a number which is a multiple of 23, something entirely different happens. First, the current player keeps the marble they would have placed, adding it to their score. In addition, the marble 7 marbles counter-clockwise from the current marble is removed from the circle and also added to the current player's score. The marble located immediately clockwise of the marble that was removed becomes the new current marble.
+
+For example, suppose there are 9 players. After the marble with value 0 is placed in the middle, each player (shown in square brackets) takes a turn. The result of each of those turns would produce circles of marbles like this, where clockwise is to the right and the resulting current marble is in parentheses:
+
+[-] (0)
+[1]  0 (1)
+[2]  0 (2) 1 
+[3]  0  2  1 (3)
+[4]  0 (4) 2  1  3 
+[5]  0  4  2 (5) 1  3 
+[6]  0  4  2  5  1 (6) 3 
+[7]  0  4  2  5  1  6  3 (7)
+[8]  0 (8) 4  2  5  1  6  3  7 
+[9]  0  8  4 (9) 2  5  1  6  3  7 
+[1]  0  8  4  9  2(10) 5  1  6  3  7 
+[2]  0  8  4  9  2 10  5(11) 1  6  3  7 
+[3]  0  8  4  9  2 10  5 11  1(12) 6  3  7 
+[4]  0  8  4  9  2 10  5 11  1 12  6(13) 3  7 
+[5]  0  8  4  9  2 10  5 11  1 12  6 13  3(14) 7 
+[6]  0  8  4  9  2 10  5 11  1 12  6 13  3 14  7(15)
+[7]  0(16) 8  4  9  2 10  5 11  1 12  6 13  3 14  7 15 
+[8]  0 16  8(17) 4  9  2 10  5 11  1 12  6 13  3 14  7 15 
+[9]  0 16  8 17  4(18) 9  2 10  5 11  1 12  6 13  3 14  7 15 
+[1]  0 16  8 17  4 18  9(19) 2 10  5 11  1 12  6 13  3 14  7 15 
+[2]  0 16  8 17  4 18  9 19  2(20)10  5 11  1 12  6 13  3 14  7 15 
+[3]  0 16  8 17  4 18  9 19  2 20 10(21) 5 11  1 12  6 13  3 14  7 15 
+[4]  0 16  8 17  4 18  9 19  2 20 10 21  5(22)11  1 12  6 13  3 14  7 15 
+[5]  0 16  8 17  4 18(19) 2 20 10 21  5 22 11  1 12  6 13  3 14  7 15 
+[6]  0 16  8 17  4 18 19  2(24)20 10 21  5 22 11  1 12  6 13  3 14  7 15 
+[7]  0 16  8 17  4 18 19  2 24 20(25)10 21  5 22 11  1 12  6 13  3 14  7 15
+The goal is to be the player with the highest score after the last marble is used up. Assuming the example above ends after the marble numbered 25, the winning score is 23+9=32 (because player 5 kept marble 23 and removed marble 9, while no other player got any points in this very short example game).
+
+Here are a few more examples:
+
+10 players; last marble is worth 1618 points: high score is 8317
+13 players; last marble is worth 7999 points: high score is 146373
+17 players; last marble is worth 1104 points: high score is 2764
+21 players; last marble is worth 6111 points: high score is 54718
+30 players; last marble is worth 5807 points: high score is 37305
+What is the winning Elf's score?
+
+## Day 10
+It's no use; your navigation system simply isn't capable of providing walking directions in the arctic circle, and certainly not in 1018.
+
+The Elves suggest an alternative. In times like these, North Pole rescue operations will arrange points of light in the sky to guide missing Elves back to base. Unfortunately, the message is easy to miss: the points move slowly enough that it takes hours to align them, but have so much momentum that they only stay aligned for a second. If you blink at the wrong time, it might be hours before another message appears.
+
+You can see these points of light floating in the distance, and record their position in the sky and their velocity, the relative change in position per second (your puzzle input). The coordinates are all given from your perspective; given enough time, those positions and velocities will move the points into a cohesive message!
+
+Rather than wait, you decide to fast-forward the process and calculate what the points will eventually spell.
+
+For example, suppose you note the following points:
+
+position=< 9,  1> velocity=< 0,  2>
+position=< 7,  0> velocity=<-1,  0>
+position=< 3, -2> velocity=<-1,  1>
+position=< 6, 10> velocity=<-2, -1>
+position=< 2, -4> velocity=< 2,  2>
+position=<-6, 10> velocity=< 2, -2>
+position=< 1,  8> velocity=< 1, -1>
+position=< 1,  7> velocity=< 1,  0>
+position=<-3, 11> velocity=< 1, -2>
+position=< 7,  6> velocity=<-1, -1>
+position=<-2,  3> velocity=< 1,  0>
+position=<-4,  3> velocity=< 2,  0>
+position=<10, -3> velocity=<-1,  1>
+position=< 5, 11> velocity=< 1, -2>
+position=< 4,  7> velocity=< 0, -1>
+position=< 8, -2> velocity=< 0,  1>
+position=<15,  0> velocity=<-2,  0>
+position=< 1,  6> velocity=< 1,  0>
+position=< 8,  9> velocity=< 0, -1>
+position=< 3,  3> velocity=<-1,  1>
+position=< 0,  5> velocity=< 0, -1>
+position=<-2,  2> velocity=< 2,  0>
+position=< 5, -2> velocity=< 1,  2>
+position=< 1,  4> velocity=< 2,  1>
+position=<-2,  7> velocity=< 2, -2>
+position=< 3,  6> velocity=<-1, -1>
+position=< 5,  0> velocity=< 1,  0>
+position=<-6,  0> velocity=< 2,  0>
+position=< 5,  9> velocity=< 1, -2>
+position=<14,  7> velocity=<-2,  0>
+position=<-3,  6> velocity=< 2, -1>
+Each line represents one point. Positions are given as <X, Y> pairs: X represents how far left (negative) or right (positive) the point appears, while Y represents how far up (negative) or down (positive) the point appears.
+
+At 0 seconds, each point has the position given. Each second, each point's velocity is added to its position. So, a point with velocity <1, -2> is moving to the right, but is moving upward twice as quickly. If this point's initial position were <3, 9>, after 3 seconds, its position would become <6, 3>.
+
+Over time, the points listed above would move like this:
+
+Initially:
+........#.............
+................#.....
+.........#.#..#.......
+......................
+#..........#.#.......#
+...............#......
+....#.................
+..#.#....#............
+.......#..............
+......#...............
+...#...#.#...#........
+....#..#..#.........#.
+.......#..............
+...........#..#.......
+#...........#.........
+...#.......#..........
+
+After 1 second:
+......................
+......................
+..........#....#......
+........#.....#.......
+..#.........#......#..
+......................
+......#...............
+....##.........#......
+......#.#.............
+.....##.##..#.........
+........#.#...........
+........#...#.....#...
+..#...........#.......
+....#.....#.#.........
+......................
+......................
+
+After 2 seconds:
+......................
+......................
+......................
+..............#.......
+....#..#...####..#....
+......................
+........#....#........
+......#.#.............
+.......#...#..........
+.......#..#..#.#......
+....#....#.#..........
+.....#...#...##.#.....
+........#.............
+......................
+......................
+......................
+
+After 3 seconds:
+......................
+......................
+......................
+......................
+......#...#..###......
+......#...#...#.......
+......#...#...#.......
+......#####...#.......
+......#...#...#.......
+......#...#...#.......
+......#...#...#.......
+......#...#..###......
+......................
+......................
+......................
+......................
+
+After 4 seconds:
+......................
+......................
+......................
+............#.........
+........##...#.#......
+......#.....#..#......
+.....#..##.##.#.......
+.......##.#....#......
+...........#....#.....
+..............#.......
+....#......#...#......
+.....#.....##.........
+...............#......
+...............#......
+......................
+......................
+After 3 seconds, the message appeared briefly: HI. Of course, your message will be much longer and will take many more seconds to appear.
+
+What message will eventually appear in the sky?
+
+## Day 11
+You watch the Elves and their sleigh fade into the distance as they head toward the North Pole.
+
+Actually, you're the one fading. The falling sensation returns.
+
+The low fuel warning light is illuminated on your wrist-mounted device. Tapping it once causes it to project a hologram of the situation: a 300x300 grid of fuel cells and their current power levels, some negative. You're not sure what negative power means in the context of time travel, but it can't be good.
+
+Each fuel cell has a coordinate ranging from 1 to 300 in both the X (horizontal) and Y (vertical) direction. In X,Y notation, the top-left cell is 1,1, and the top-right cell is 300,1.
+
+The interface lets you select any 3x3 square of fuel cells. To increase your chances of getting to your destination, you decide to choose the 3x3 square with the largest total power.
+
+The power level in a given fuel cell can be found through the following process:
+
+Find the fuel cell's rack ID, which is its X coordinate plus 10.
+Begin with a power level of the rack ID times the Y coordinate.
+Increase the power level by the value of the grid serial number (your puzzle input).
+Set the power level to itself multiplied by the rack ID.
+Keep only the hundreds digit of the power level (so 12345 becomes 3; numbers with no hundreds digit become 0).
+Subtract 5 from the power level.
+For example, to find the power level of the fuel cell at 3,5 in a grid with serial number 8:
+
+The rack ID is 3 + 10 = 13.
+The power level starts at 13 * 5 = 65.
+Adding the serial number produces 65 + 8 = 73.
+Multiplying by the rack ID produces 73 * 13 = 949.
+The hundreds digit of 949 is 9.
+Subtracting 5 produces 9 - 5 = 4.
+So, the power level of this fuel cell is 4.
+
+Here are some more example power levels:
+
+Fuel cell at  122,79, grid serial number 57: power level -5.
+Fuel cell at 217,196, grid serial number 39: power level  0.
+Fuel cell at 101,153, grid serial number 71: power level  4.
+Your goal is to find the 3x3 square which has the largest total power. The square must be entirely within the 300x300 grid. Identify this square using the X,Y coordinate of its top-left fuel cell. For example:
+
+For grid serial number 18, the largest total 3x3 square has a top-left corner of 33,45 (with a total power of 29); these fuel cells appear in the middle of this 5x5 region:
+
+-2  -4   4   4   4
+-4   4   4   4  -5
+ 4   3   3   4  -4
+ 1   1   2   4  -3
+-1   0   2  -5  -2
+For grid serial number 42, the largest 3x3 square's top-left is 21,61 (with a total power of 30); they are in the middle of this region:
+
+-3   4   2   2   2
+-4   4   3   3   4
+-5   3   3   4  -4
+ 4   3   3   4  -3
+ 3   3   3  -5  -1
+What is the X,Y coordinate of the top-left fuel cell of the 3x3 square with the largest total power?
+
+Your puzzle input is 6392.
+
+## Day 12
+The year 518 is significantly more underground than your history books implied. Either that, or you've arrived in a vast cavern network under the North Pole.
+
+After exploring a little, you discover a long tunnel that contains a row of small pots as far as you can see to your left and right. A few of them contain plants - someone is trying to grow things in these geothermally-heated caves.
+
+The pots are numbered, with 0 in front of you. To the left, the pots are numbered -1, -2, -3, and so on; to the right, 1, 2, 3.... Your puzzle input contains a list of pots from 0 to the right and whether they do (#) or do not (.) currently contain a plant, the initial state. (No other pots currently contain plants.) For example, an initial state of #..##.... indicates that pots 0, 3, and 4 currently contain plants.
+
+Your puzzle input also contains some notes you find on a nearby table: someone has been trying to figure out how these plants spread to nearby pots. Based on the notes, for each generation of plants, a given pot has or does not have a plant based on whether that pot (and the two pots on either side of it) had a plant in the last generation. These are written as LLCRR => N, where L are pots to the left, C is the current pot being considered, R are the pots to the right, and N is whether the current pot will have a plant in the next generation. For example:
+
+A note like ..#.. => . means that a pot that contains a plant but with no plants within two pots of it will not have a plant in it during the next generation.
+A note like ##.## => . means that an empty pot with two plants on each side of it will remain empty in the next generation.
+A note like .##.# => # means that a pot has a plant in a given generation if, in the previous generation, there were plants in that pot, the one immediately to the left, and the one two pots to the right, but not in the ones immediately to the right and two to the left.
+It's not clear what these plants are for, but you're sure it's important, so you'd like to make sure the current configuration of plants is sustainable by determining what will happen after 20 generations.
+
+For example, given the following input:
+
+initial state: #..#.#..##......###...###
+
+...## => #
+..#.. => #
+.#... => #
+.#.#. => #
+.#.## => #
+.##.. => #
+.#### => #
+#.#.# => #
+#.### => #
+##.#. => #
+##.## => #
+###.. => #
+###.# => #
+####. => #
+For brevity, in this example, only the combinations which do produce a plant are listed. (Your input includes all possible combinations.) Then, the next 20 generations will look like this:
+
+                 1         2         3     
+       0         0         0         0     
+ 0: ...#..#.#..##......###...###...........
+ 1: ...#...#....#.....#..#..#..#...........
+ 2: ...##..##...##....#..#..#..##..........
+ 3: ..#.#...#..#.#....#..#..#...#..........
+ 4: ...#.#..#...#.#...#..#..##..##.........
+ 5: ....#...##...#.#..#..#...#...#.........
+ 6: ....##.#.#....#...#..##..##..##........
+ 7: ...#..###.#...##..#...#...#...#........
+ 8: ...#....##.#.#.#..##..##..##..##.......
+ 9: ...##..#..#####....#...#...#...#.......
+10: ..#.#..#...#.##....##..##..##..##......
+11: ...#...##...#.#...#.#...#...#...#......
+12: ...##.#.#....#.#...#.#..##..##..##.....
+13: ..#..###.#....#.#...#....#...#...#.....
+14: ..#....##.#....#.#..##...##..##..##....
+15: ..##..#..#.#....#....#..#.#...#...#....
+16: .#.#..#...#.#...##...#...#.#..##..##...
+17: ..#...##...#.#.#.#...##...#....#...#...
+18: ..##.#.#....#####.#.#.#...##...##..##..
+19: .#..###.#..#.#.#######.#.#.#..#.#...#..
+20: .#....##....#####...#######....#.#..##.
+The generation is shown along the left, where 0 is the initial state. The pot numbers are shown along the top, where 0 labels the center pot, negative-numbered pots extend to the left, and positive pots extend toward the right. Remember, the initial state begins at pot 0, which is not the leftmost pot used in this example.
+
+After one generation, only seven plants remain. The one in pot 0 matched the rule looking for ..#.., the one in pot 4 matched the rule looking for .#.#., pot 9 matched .##.., and so on.
+
+In this example, after 20 generations, the pots shown as # contain plants, the furthest left of which is pot -2, and the furthest right of which is pot 34. Adding up all the numbers of plant-containing pots after the 20th generation produces 325.
+
+After 20 generations, what is the sum of the numbers of all pots which contain a plant?
+
+## Day 13
+A crop of this size requires significant logistics to transport produce, soil, fertilizer, and so on. The Elves are very busy pushing things around in carts on some kind of rudimentary system of tracks they've come up with.
+
+Seeing as how cart-and-track systems don't appear in recorded history for another 1000 years, the Elves seem to be making this up as they go along. They haven't even figured out how to avoid collisions yet.
+
+You map out the tracks (your puzzle input) and see where you can help.
+
+Tracks consist of straight paths (| and -), curves (/ and \), and intersections (+). Curves connect exactly two perpendicular pieces of track; for example, this is a closed loop:
+
+/----\
+|    |
+|    |
+\----/
+Intersections occur when two perpendicular paths cross. At an intersection, a cart is capable of turning left, turning right, or continuing straight. Here are two loops connected by two intersections:
+
+/-----\
+|     |
+|  /--+--\
+|  |  |  |
+\--+--/  |
+   |     |
+   \-----/
+Several carts are also on the tracks. Carts always face either up (^), down (v), left (<), or right (>). (On your initial map, the track under each cart is a straight path matching the direction the cart is facing.)
+
+Each time a cart has the option to turn (by arriving at any intersection), it turns left the first time, goes straight the second time, turns right the third time, and then repeats those directions starting again with left the fourth time, straight the fifth time, and so on. This process is independent of the particular intersection at which the cart has arrived - that is, the cart has no per-intersection memory.
+
+Carts all move at the same speed; they take turns moving a single step at a time. They do this based on their current location: carts on the top row move first (acting from left to right), then carts on the second row move (again from left to right), then carts on the third row, and so on. Once each cart has moved one step, the process repeats; each of these loops is called a tick.
+
+For example, suppose there are two carts on a straight track:
+
+|  |  |  |  |
+v  |  |  |  |
+|  v  v  |  |
+|  |  |  v  X
+|  |  ^  ^  |
+^  ^  |  |  |
+|  |  |  |  |
+First, the top cart moves. It is facing down (v), so it moves down one square. Second, the bottom cart moves. It is facing up (^), so it moves up one square. Because all carts have moved, the first tick ends. Then, the process repeats, starting with the first cart. The first cart moves down, then the second cart moves up - right into the first cart, colliding with it! (The location of the crash is marked with an X.) This ends the second and last tick.
+
+Here is a longer example:
+
+/->-\        
+|   |  /----\
+| /-+--+-\  |
+| | |  | v  |
+\-+-/  \-+--/
+  \------/   
+
+/-->\        
+|   |  /----\
+| /-+--+-\  |
+| | |  | |  |
+\-+-/  \->--/
+  \------/   
+
+/---v        
+|   |  /----\
+| /-+--+-\  |
+| | |  | |  |
+\-+-/  \-+>-/
+  \------/   
+
+/---\        
+|   v  /----\
+| /-+--+-\  |
+| | |  | |  |
+\-+-/  \-+->/
+  \------/   
+
+/---\        
+|   |  /----\
+| /->--+-\  |
+| | |  | |  |
+\-+-/  \-+--^
+  \------/   
+
+/---\        
+|   |  /----\
+| /-+>-+-\  |
+| | |  | |  ^
+\-+-/  \-+--/
+  \------/   
+
+/---\        
+|   |  /----\
+| /-+->+-\  ^
+| | |  | |  |
+\-+-/  \-+--/
+  \------/   
+
+/---\        
+|   |  /----<
+| /-+-->-\  |
+| | |  | |  |
+\-+-/  \-+--/
+  \------/   
+
+/---\        
+|   |  /---<\
+| /-+--+>\  |
+| | |  | |  |
+\-+-/  \-+--/
+  \------/   
+
+/---\        
+|   |  /--<-\
+| /-+--+-v  |
+| | |  | |  |
+\-+-/  \-+--/
+  \------/   
+
+/---\        
+|   |  /-<--\
+| /-+--+-\  |
+| | |  | v  |
+\-+-/  \-+--/
+  \------/   
+
+/---\        
+|   |  /<---\
+| /-+--+-\  |
+| | |  | |  |
+\-+-/  \-<--/
+  \------/   
+
+/---\        
+|   |  v----\
+| /-+--+-\  |
+| | |  | |  |
+\-+-/  \<+--/
+  \------/   
+
+/---\        
+|   |  /----\
+| /-+--v-\  |
+| | |  | |  |
+\-+-/  ^-+--/
+  \------/   
+
+/---\        
+|   |  /----\
+| /-+--+-\  |
+| | |  X |  |
+\-+-/  \-+--/
+  \------/   
+After following their respective paths for a while, the carts eventually crash. To help prevent crashes, you'd like to know the location of the first crash. Locations are given in X,Y coordinates, where the furthest left column is X=0 and the furthest top row is Y=0:
+
+           111
+ 0123456789012
+0/---\        
+1|   |  /----\
+2| /-+--+-\  |
+3| | |  X |  |
+4\-+-/  \-+--/
+5  \------/   
+In this example, the location of the first crash is 7,3.
+
+## Day 14
+You finally have a chance to look at all of the produce moving around. Chocolate, cinnamon, mint, chili peppers, nutmeg, vanilla... the Elves must be growing these plants to make hot chocolate! As you realize this, you hear a conversation in the distance. When you go to investigate, you discover two Elves in what appears to be a makeshift underground kitchen/laboratory.
+
+The Elves are trying to come up with the ultimate hot chocolate recipe; they're even maintaining a scoreboard which tracks the quality score (0-9) of each recipe.
+
+Only two recipes are on the board: the first recipe got a score of 3, the second, 7. Each of the two Elves has a current recipe: the first Elf starts with the first recipe, and the second Elf starts with the second recipe.
+
+To create new recipes, the two Elves combine their current recipes. This creates new recipes from the digits of the sum of the current recipes' scores. With the current recipes' scores of 3 and 7, their sum is 10, and so two new recipes would be created: the first with score 1 and the second with score 0. If the current recipes' scores were 2 and 3, the sum, 5, would only create one recipe (with a score of 5) with its single digit.
+
+The new recipes are added to the end of the scoreboard in the order they are created. So, after the first round, the scoreboard is 3, 7, 1, 0.
+
+After all new recipes are added to the scoreboard, each Elf picks a new current recipe. To do this, the Elf steps forward through the scoreboard a number of recipes equal to 1 plus the score of their current recipe. So, after the first round, the first Elf moves forward 1 + 3 = 4 times, while the second Elf moves forward 1 + 7 = 8 times. If they run out of recipes, they loop back around to the beginning. After the first round, both Elves happen to loop around until they land on the same recipe that they had in the beginning; in general, they will move to different recipes.
+
+Drawing the first Elf as parentheses and the second Elf as square brackets, they continue this process:
+
+(3)[7]
+(3)[7] 1  0 
+ 3  7  1 [0](1) 0 
+ 3  7  1  0 [1] 0 (1)
+(3) 7  1  0  1  0 [1] 2 
+ 3  7  1  0 (1) 0  1  2 [4]
+ 3  7  1 [0] 1  0 (1) 2  4  5 
+ 3  7  1  0 [1] 0  1  2 (4) 5  1 
+ 3 (7) 1  0  1  0 [1] 2  4  5  1  5 
+ 3  7  1  0  1  0  1  2 [4](5) 1  5  8 
+ 3 (7) 1  0  1  0  1  2  4  5  1  5  8 [9]
+ 3  7  1  0  1  0  1 [2] 4 (5) 1  5  8  9  1  6 
+ 3  7  1  0  1  0  1  2  4  5 [1] 5  8  9  1 (6) 7 
+ 3  7  1  0 (1) 0  1  2  4  5  1  5 [8] 9  1  6  7  7 
+ 3  7 [1] 0  1  0 (1) 2  4  5  1  5  8  9  1  6  7  7  9 
+ 3  7  1  0 [1] 0  1  2 (4) 5  1  5  8  9  1  6  7  7  9  2 
+The Elves think their skill will improve after making a few recipes (your puzzle input). However, that could take ages; you can speed this up considerably by identifying the scores of the ten recipes after that. For example:
+
+If the Elves think their skill will improve after making 9 recipes, the scores of the ten recipes after the first nine on the scoreboard would be 5158916779 (highlighted in the last line of the diagram).
+After 5 recipes, the scores of the next ten would be 0124515891.
+After 18 recipes, the scores of the next ten would be 9251071085.
+After 2018 recipes, the scores of the next ten would be 5941429882.
+What are the scores of the ten recipes immediately after the number of recipes in your puzzle input?
+
+Your puzzle input is 505961.
+
+## Day 15
+Having perfected their hot chocolate, the Elves have a new problem: the Goblins that live in these caves will do anything to steal it. Looks like they're here for a fight.
+
+You scan the area, generating a map of the walls (#), open cavern (.), and starting position of every Goblin (G) and Elf (E) (your puzzle input).
+
+Combat proceeds in rounds; in each round, each unit that is still alive takes a turn, resolving all of its actions before the next unit's turn begins. On each unit's turn, it tries to move into range of an enemy (if it isn't already) and then attack (if it is in range).
+
+All units are very disciplined and always follow very strict combat rules. Units never move or attack diagonally, as doing so would be dishonorable. When multiple choices are equally valid, ties are broken in reading order: top-to-bottom, then left-to-right. For instance, the order in which units take their turns within a round is the reading order of their starting positions in that round, regardless of the type of unit or whether other units have moved after the round started. For example:
+
+                 would take their
+These units:   turns in this order:
+  #######           #######
+  #.G.E.#           #.1.2.#
+  #E.G.E#           #3.4.5#
+  #.G.E.#           #.6.7.#
+  #######           #######
+Each unit begins its turn by identifying all possible targets (enemy units). If no targets remain, combat ends.
+
+Then, the unit identifies all of the open squares (.) that are in range of each target; these are the squares which are adjacent (immediately up, down, left, or right) to any target and which aren't already occupied by a wall or another unit. Alternatively, the unit might already be in range of a target. If the unit is not already in range of a target, and there are no open squares which are in range of a target, the unit ends its turn.
+
+If the unit is already in range of a target, it does not move, but continues its turn with an attack. Otherwise, since it is not in range of a target, it moves.
+
+To move, the unit first considers the squares that are in range and determines which of those squares it could reach in the fewest steps. A step is a single movement to any adjacent (immediately up, down, left, or right) open (.) square. Units cannot move into walls or other units. The unit does this while considering the current positions of units and does not do any prediction about where units will be later. If the unit cannot reach (find an open path to) any of the squares that are in range, it ends its turn. If multiple squares are in range and tied for being reachable in the fewest steps, the step which is first in reading order is chosen. For example:
+
+Targets:      In range:     Reachable:    Nearest:      Chosen:
+#######       #######       #######       #######       #######
+#E..G.#       #E.?G?#       #E.@G.#       #E.!G.#       #E.+G.#
+#...#.#  -->  #.?.#?#  -->  #.@.#.#  -->  #.!.#.#  -->  #...#.#
+#.G.#G#       #?G?#G#       #@G@#G#       #!G.#G#       #.G.#G#
+#######       #######       #######       #######       #######
+In the above scenario, the Elf has three targets (the three Goblins):
+
+Each of the Goblins has open, adjacent squares which are in range (marked with a ? on the map).
+Of those squares, four are reachable (marked @); the other two (on the right) would require moving through a wall or unit to reach.
+Three of these reachable squares are nearest, requiring the fewest steps (only 2) to reach (marked !).
+Of those, the square which is first in reading order is chosen (+).
+The unit then takes a single step toward the chosen square along the shortest path to that square. If multiple steps would put the unit equally closer to its destination, the unit chooses the step which is first in reading order. (This requires knowing when there is more than one shortest path so that you can consider the first step of each such path.) For example:
+
+In range:     Nearest:      Chosen:       Distance:     Step:
+#######       #######       #######       #######       #######
+#.E...#       #.E...#       #.E...#       #4E212#       #..E..#
+#...?.#  -->  #...!.#  -->  #...+.#  -->  #32101#  -->  #.....#
+#..?G?#       #..!G.#       #...G.#       #432G2#       #...G.#
+#######       #######       #######       #######       #######
+The Elf sees three squares in range of a target (?), two of which are nearest (!), and so the first in reading order is chosen (+). Under "Distance", each open square is marked with its distance from the destination square; the two squares to which the Elf could move on this turn (down and to the right) are both equally good moves and would leave the Elf 2 steps from being in range of the Goblin. Because the step which is first in reading order is chosen, the Elf moves right one square.
+
+Here's a larger example of movement:
+
+Initially:
+#########
+#G..G..G#
+#.......#
+#.......#
+#G..E..G#
+#.......#
+#.......#
+#G..G..G#
+#########
+
+After 1 round:
+#########
+#.G...G.#
+#...G...#
+#...E..G#
+#.G.....#
+#.......#
+#G..G..G#
+#.......#
+#########
+
+After 2 rounds:
+#########
+#..G.G..#
+#...G...#
+#.G.E.G.#
+#.......#
+#G..G..G#
+#.......#
+#.......#
+#########
+
+After 3 rounds:
+#########
+#.......#
+#..GGG..#
+#..GEG..#
+#G..G...#
+#......G#
+#.......#
+#.......#
+#########
+Once the Goblins and Elf reach the positions above, they all are either in range of a target or cannot find any square in range of a target, and so none of the units can move until a unit dies.
+
+After moving (or if the unit began its turn in range of a target), the unit attacks.
+
+To attack, the unit first determines all of the targets that are in range of it by being immediately adjacent to it. If there are no such targets, the unit ends its turn. Otherwise, the adjacent target with the fewest hit points is selected; in a tie, the adjacent target with the fewest hit points which is first in reading order is selected.
+
+The unit deals damage equal to its attack power to the selected target, reducing its hit points by that amount. If this reduces its hit points to 0 or fewer, the selected target dies: its square becomes . and it takes no further turns.
+
+Each unit, either Goblin or Elf, has 3 attack power and starts with 200 hit points.
+
+For example, suppose the only Elf is about to attack:
+
+       HP:            HP:
+G....  9       G....  9  
+..G..  4       ..G..  4  
+..EG.  2  -->  ..E..     
+..G..  2       ..G..  2  
+...G.  1       ...G.  1  
+The "HP" column shows the hit points of the Goblin to the left in the corresponding row. The Elf is in range of three targets: the Goblin above it (with 4 hit points), the Goblin to its right (with 2 hit points), and the Goblin below it (also with 2 hit points). Because three targets are in range, the ones with the lowest hit points are selected: the two Goblins with 2 hit points each (one to the right of the Elf and one below the Elf). Of those, the Goblin first in reading order (the one to the right of the Elf) is selected. The selected Goblin's hit points (2) are reduced by the Elf's attack power (3), reducing its hit points to -1, killing it.
+
+After attacking, the unit's turn ends. Regardless of how the unit's turn ends, the next unit in the round takes its turn. If all units have taken turns in this round, the round ends, and a new round begins.
+
+The Elves look quite outnumbered. You need to determine the outcome of the battle: the number of full rounds that were completed (not counting the round in which combat ends) multiplied by the sum of the hit points of all remaining units at the moment combat ends. (Combat only ends when a unit finds no targets during its turn.)
+
+Below is an entire sample combat. Next to each map, each row's units' hit points are listed from left to right.
+
+Initially:
+#######   
+#.G...#   G(200)
+#...EG#   E(200), G(200)
+#.#.#G#   G(200)
+#..G#E#   G(200), E(200)
+#.....#   
+#######   
+
+After 1 round:
+#######   
+#..G..#   G(200)
+#...EG#   E(197), G(197)
+#.#G#G#   G(200), G(197)
+#...#E#   E(197)
+#.....#   
+#######   
+
+After 2 rounds:
+#######   
+#...G.#   G(200)
+#..GEG#   G(200), E(188), G(194)
+#.#.#G#   G(194)
+#...#E#   E(194)
+#.....#   
+#######   
+
+Combat ensues; eventually, the top Elf dies:
+
+After 23 rounds:
+#######   
+#...G.#   G(200)
+#..G.G#   G(200), G(131)
+#.#.#G#   G(131)
+#...#E#   E(131)
+#.....#   
+#######   
+
+After 24 rounds:
+#######   
+#..G..#   G(200)
+#...G.#   G(131)
+#.#G#G#   G(200), G(128)
+#...#E#   E(128)
+#.....#   
+#######   
+
+After 25 rounds:
+#######   
+#.G...#   G(200)
+#..G..#   G(131)
+#.#.#G#   G(125)
+#..G#E#   G(200), E(125)
+#.....#   
+#######   
+
+After 26 rounds:
+#######   
+#G....#   G(200)
+#.G...#   G(131)
+#.#.#G#   G(122)
+#...#E#   E(122)
+#..G..#   G(200)
+#######   
+
+After 27 rounds:
+#######   
+#G....#   G(200)
+#.G...#   G(131)
+#.#.#G#   G(119)
+#...#E#   E(119)
+#...G.#   G(200)
+#######   
+
+After 28 rounds:
+#######   
+#G....#   G(200)
+#.G...#   G(131)
+#.#.#G#   G(116)
+#...#E#   E(113)
+#....G#   G(200)
+#######   
+
+More combat ensues; eventually, the bottom Elf dies:
+
+After 47 rounds:
+#######   
+#G....#   G(200)
+#.G...#   G(131)
+#.#.#G#   G(59)
+#...#.#   
+#....G#   G(200)
+#######   
+Before the 48th round can finish, the top-left Goblin finds that there are no targets remaining, and so combat ends. So, the number of full rounds that were completed is 47, and the sum of the hit points of all remaining units is 200+131+59+200 = 590. From these, the outcome of the battle is 47 * 590 = 27730.
+
+Here are a few example summarized combats:
+
+#######       #######
+#G..#E#       #...#E#   E(200)
+#E#E.E#       #E#...#   E(197)
+#G.##.#  -->  #.E##.#   E(185)
+#...#E#       #E..#E#   E(200), E(200)
+#...E.#       #.....#
+#######       #######
+
+Combat ends after 37 full rounds
+Elves win with 982 total hit points left
+Outcome: 37 * 982 = 36334
+#######       #######   
+#E..EG#       #.E.E.#   E(164), E(197)
+#.#G.E#       #.#E..#   E(200)
+#E.##E#  -->  #E.##.#   E(98)
+#G..#.#       #.E.#.#   E(200)
+#..E#.#       #...#.#   
+#######       #######   
+
+Combat ends after 46 full rounds
+Elves win with 859 total hit points left
+Outcome: 46 * 859 = 39514
+#######       #######   
+#E.G#.#       #G.G#.#   G(200), G(98)
+#.#G..#       #.#G..#   G(200)
+#G.#.G#  -->  #..#..#   
+#G..#.#       #...#G#   G(95)
+#...E.#       #...G.#   G(200)
+#######       #######   
+
+Combat ends after 35 full rounds
+Goblins win with 793 total hit points left
+Outcome: 35 * 793 = 27755
+#######       #######   
+#.E...#       #.....#   
+#.#..G#       #.#G..#   G(200)
+#.###.#  -->  #.###.#   
+#E#G#G#       #.#.#.#   
+#...#G#       #G.G#G#   G(98), G(38), G(200)
+#######       #######   
+
+Combat ends after 54 full rounds
+Goblins win with 536 total hit points left
+Outcome: 54 * 536 = 28944
+#########       #########   
+#G......#       #.G.....#   G(137)
+#.E.#...#       #G.G#...#   G(200), G(200)
+#..##..G#       #.G##...#   G(200)
+#...##..#  -->  #...##..#   
+#...#...#       #.G.#...#   G(200)
+#.G...G.#       #.......#   
+#.....G.#       #.......#   
+#########       #########   
+
+Combat ends after 20 full rounds
+Goblins win with 937 total hit points left
+Outcome: 20 * 937 = 18740
+What is the outcome of the combat described in your puzzle input?
