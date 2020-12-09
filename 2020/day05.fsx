@@ -4,7 +4,7 @@ let getBounds (bottom, top) action =
     | _ -> (1+bottom+(top-bottom)/2, top)
 
 
-let day05 (arr: seq<string>) =
+let rowId (arr: seq<string>) =
     arr
     |> Seq.map (fun seat ->
         let (row, _) = 
@@ -18,4 +18,7 @@ let day05 (arr: seq<string>) =
 
         row * 8 + column
     )
+let day05 (arr: seq<string>) =
+    arr
+    |> rowId
     |> Seq.max
